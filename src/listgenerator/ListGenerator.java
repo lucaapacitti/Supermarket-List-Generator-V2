@@ -17,17 +17,8 @@ public class ListGenerator
 
     // Users
 
-    public void CreateUser(String username, String forename, String surname, String password, String email)
-    throws RuntimeException
-    {
-        CheckLegalUsername(username);
-        CheckLegalPassword(password);
-        CheckValidEmail(email);
-        User newUser = new User(forename, surname, username, password, email);
-        users.put(username, newUser);
-    }
-
     public void CheckLegalUsername(String username)
+    throws RuntimeException
     {
         if (username.length() < 1 || username.length() > 20)
         {
@@ -41,16 +32,15 @@ public class ListGenerator
                 throw new RuntimeException("Username may only contain letters, numbers, periods and underscores.");
             }
         }
-        for (String existingUsername : users.keySet())
+        User user = users.get(username.toLowerCase());
+        if (user != null)
         {
-            if (existingUsername.toLowerCase() == username.toLowerCase())
-            {
-                throw new RuntimeException("Username already in use.");
-            }
+            throw new RuntimeException("Username already in use.");
         }
     }
 
     public void CheckLegalPassword(String password)
+    throws RuntimeException
     {
         if (password.length() < 8)
         {
@@ -60,25 +50,25 @@ public class ListGenerator
         boolean lowerPresent = false;
         boolean numberPresent = false;
         boolean specialPresent = false;
-        for (int i = 0; i < password.length; i++)
+        for (int i = 0; i < password.length(); i++)
         {
-            if (password.substring(i, i + 1) == " ")
+            if (password.charAt(i) == ' ')
             {
                 throw new RuntimeException("Password must not contain spaces.");
             }
-            if (Character.isUpperCase(password.substring(i, i + 1)))
+            if (Character.isUpperCase(password.charAt(i)))
             {
                 upperPresent = true;
             }
-            if (Character.isLowerCase(password.substring(i, i + 1)))
+            if (Character.isLowerCase(password.charAt(i)))
             {
                 lowerPresent = true;
             }
-            if (Character.isDigit(password.substring(i, i + 1)))
+            if (Character.isDigit(password.charAt(i)))
             {
                 numberPresent = true;
             }
-            if (!Character.isLetterOrDigit(password.substring(i, i + 1)))
+            if (!Character.isLetterOrDigit(password.charAt(i)))
             {
                 specialPresent = true;
             }
@@ -90,25 +80,26 @@ public class ListGenerator
     }
 
     public void CheckValidEmail(String email)
+    throws RuntimeException
     {
         String permittedChars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890.@";
-        if (!Character.isLetterOrDigit(email.substring(0, 1)) || !Character.isLetterOrDigit(email.substring(email.length - 1, email.length)))
+        if (!Character.isLetterOrDigit(email.charAt(0)) || !Character.isLetterOrDigit(email.charAt(email.length() - 1)))
         {
             throw new RuntimeException("Email is of invalid format.");
         }
         int atCount = 0;
         boolean periodPresent = false;
-        for (int i = 0; i < email.length; i++)
+        for (int i = 0; i < email.length(); i++)
         {
             if (!permittedChars.contains(email.substring(i, i + 1)))
             {
                 throw new RuntimeException("Email is of invalid format.");
             }
-            if (email.substring(i, i + 1).equals("@"))
+            if (email.charAt(i) == '@')
             {
                 atCount++;
             }
-            if (email.substring(i, i + 1).equals("."))
+            if (email.charAt(i) == '.')
             {
                 periodPresent = true;
             }
@@ -117,13 +108,36 @@ public class ListGenerator
         {
             throw new RuntimeException("Email is of invalid format.");
         }
-        for (int i = 0; i < email.length - 1; i++)
+        for (int i = 0; i < email.length() - 1; i++)
         {
             if (email.substring(i, i + 2).equals("..") || email.substring(i, i + 2).equals(".@") || email.substring(i, i + 2).equals("@."))
             {
                 throw new RuntimeException("Email is of invalid format.");
             }
         }
+    }
+
+    public void CreateUser(String username, String forename, String surname, String password, String email)
+    {
+        CheckLegalUsername(username);
+        CheckLegalPassword(password);
+        CheckValidEmail(email);
+        User newUser = new User(forename, surname, username.toLowerCase(), password, email);
+        users.put(username, newUser);
+    }
+
+    public boolean AttemptLogin(String username, String password)
+    {
+        User user = users.get(username.toLowerCase());
+        if (user == null)
+        {
+            return false;
+        }
+        if (password != user.getPassword())
+        {
+            return false;
+        }
+        return true;
     }
 
     public void EditForename(String username, String forename)
@@ -185,4 +199,8 @@ public class ListGenerator
         }
         users.remove(username);
     }
+
+    // Products
+
+    
 }
