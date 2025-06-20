@@ -91,10 +91,10 @@ public class ListGenerator
 
     public void CheckValidEmail(String email)
     {
-        String permittedChars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890.@"
+        String permittedChars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890.@";
         if (!Character.isLetterOrDigit(email.substring(0, 1)) || !Character.isLetterOrDigit(email.substring(email.length - 1, email.length)))
         {
-            throw new RuntimeException("Email is of invalid format.")
+            throw new RuntimeException("Email is of invalid format.");
         }
         int atCount = 0;
         boolean periodPresent = false;
@@ -102,7 +102,7 @@ public class ListGenerator
         {
             if (!permittedChars.contains(email.substring(i, i + 1)))
             {
-                throw new RuntimeException("Email is of invalid format.")
+                throw new RuntimeException("Email is of invalid format.");
             }
             if (email.substring(i, i + 1).equals("@"))
             {
@@ -115,14 +115,74 @@ public class ListGenerator
         }
         if (atCount != 1 || periodPresent == false)
         {
-            throw new RuntimeException("Email is of invalid format.")
+            throw new RuntimeException("Email is of invalid format.");
         }
         for (int i = 0; i < email.length - 1; i++)
         {
             if (email.substring(i, i + 2).equals("..") || email.substring(i, i + 2).equals(".@") || email.substring(i, i + 2).equals("@."))
             {
-                throw new RuntimeException("Email is of invalid format.")
+                throw new RuntimeException("Email is of invalid format.");
             }
         }
+    }
+
+    public void EditForename(String username, String forename)
+    {
+        User user = users.get(username);
+        user.setForename(forename);
+    }
+
+    public void EditSurname(String username, String surname)
+    {
+        User user = users.get(username);
+        user.setSurname(surname);
+    }
+
+    public void EditEmail(String username, String email)
+    {
+        User user = users.get(username);
+        user.setEmail(email);
+    }
+
+    public void EditPassword(String username, String password)
+    {
+        CheckLegalPassword(password);
+        User user = users.get(username);
+        user.setPassword(password);
+    }
+
+    public int[] GetUserLists(String username)
+    {
+        int arrSize = 0;
+        for (List list : lists.values())
+        {
+            if (list.getUser().getUsername() == username)
+            {
+                arrSize++;
+            }
+        }
+        int[] UserLists = new int[arrSize];
+        int index = 0;
+        for (List list : lists.values())
+        {
+            if (list.getUser().getUsername() == username)
+            {
+                UserLists[index] = list.getID();
+                index++;
+            }
+        }
+        return UserLists;
+    }
+
+    public void DeleteUser(String username)
+    {
+        for (List list : lists.values())
+        {
+            if (list.getUser().getUsername() == username)
+            {
+                lists.remove(list.getID());
+            }
+        }
+        users.remove(username);
     }
 }
