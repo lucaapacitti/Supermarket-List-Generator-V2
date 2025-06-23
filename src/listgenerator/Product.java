@@ -6,9 +6,9 @@ public class Product
     private String name;
     private String category;
     private double price;
-    private int location;
+    private Location location;
 
-    public Product(int ID, String name, String category, double price, int location)
+    public Product(int ID, String name, String category, double price, Location location)
     {
         this.ID = ID;
         this.name = name;
@@ -52,12 +52,12 @@ public class Product
         this.price = price;
     }
 
-    public int getLocation()
+    public Location getLocation()
     {
         return location;
     }
 
-    public void setLocation(int location)
+    public void setLocation(Location location)
     {
         this.location = location;
     }

@@ -202,5 +202,31 @@ public class ListGenerator
 
     // Products
 
-    
+    public int GetAvailableID()
+    {
+        int availableID = 0;
+        while (products.get(availableID) != null)
+        {
+            availableID++;
+        }
+        return availableID;
+    }
+
+    public void CheckValidPrice(double price)
+    throws RuntimeException
+    {
+        if (price < 0.01)
+        {
+            throw new RuntimeException("Product price must be minimum £0.01");
+        }
+    }
+
+    public void CreateProduct(String name, String category, double price, Location location)
+    {
+        int productID = GetAvailableID();
+        price = Math.floor(price * 100) / 100.0;
+        CheckValidPrice(price);
+        Product product = new Product(productID, name, category, price, location);
+        products.put(productID, product);
+    }
 }

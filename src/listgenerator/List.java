@@ -8,13 +8,15 @@ public class List
     private String name;
     private User user;
     private ArrayList<Product> items;
+    private Store store;
 
-    public List(int ID, String name, User user)
+    public List(int ID, String name, User user, Store store)
     {
         this.ID = ID;
         this.name = name;
         this.user = user;
         items = new ArrayList<Product>();
+        this.store = store;
     }
 
     public int getID()
@@ -45,5 +47,15 @@ public class List
     public void setItems(ArrayList<Product> items)
     {
         this.items = items;
+    }
+
+    public Store getStore()
+    {
+        return store;
+    }
+
+    public void setStore(Store store)
+    {
+        this.store = store;
     }
 }
