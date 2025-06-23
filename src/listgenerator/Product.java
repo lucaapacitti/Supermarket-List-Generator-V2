@@ -7,6 +7,7 @@ public class Product
     private String category;
     private double price;
     private Location location;
+    private boolean inStock;
 
     public Product(int ID, String name, String category, double price, Location location)
     {
@@ -15,6 +16,7 @@ public class Product
         this.category = category;
         this.price = price;
         this.location = location;
+        inStock = true;
     }
 
     public int getID()
@@ -60,5 +62,15 @@ public class Product
     public void setLocation(Location location)
     {
         this.location = location;
+    }
+
+    public boolean getInStock()
+    {
+        return inStock;
+    }
+
+    public void setInStock(boolean inStock)
+    {
+        this.inStock = inStock;
     }
 }

@@ -1,18 +1,23 @@
 package listgenerator;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 
 public class ListGenerator
 {
     private HashMap<Integer, Product> products;
     private HashMap<String, User> users;
     private HashMap<Integer, List> lists;
+    private HashMap<Integer, Store> stores;
+    private HashMap<Integer, Location> locations;
 
     public ListGenerator()
     {
         this.products = new HashMap<>();
         this.users = new HashMap<>();
         this.lists = new HashMap<>();
+        this.stores = new HashMap<>();
+        this.locations = new HashMap<>();
     }
 
     // Users
@@ -229,4 +234,73 @@ public class ListGenerator
         Product product = new Product(productID, name, category, price, location);
         products.put(productID, product);
     }
+
+    public String[] GetAllProductCategories()
+    {
+        ArrayList<String> categoriesList = new ArrayList<>();
+        for (Product product : products.values())
+        {
+            if (!categoriesList.contains(product.getCategory()))
+            {
+                categoriesList.add(product.getCategory());
+            }
+        }
+        String[] categoriesArr = new String[categoriesList.size()];
+        int index = 0;
+        for (String category : categoriesList)
+        {
+            categoriesArr[index] = category;
+        }
+        return categoriesArr;
+    }
+
+    public void EditProductCategory(int ID, String category)
+    {
+        Product product = products.get(ID);
+        product.setCategory(category);
+    }
+
+    public void EditProductPrice(int ID, double price)
+    {
+        CheckValidPrice(price);
+        Product product = products.get(ID);
+        product.setPrice(price);
+    }
+
+    public void EditProductLocation(int ID, Location location)
+    {
+        Product product = products.get(ID);
+        product.setLocation(location);
+    }
+
+    public void EditProductInStock(int ID)
+    {
+        Product product = products.get(ID);
+        if (product.getInStock())
+        {
+            product.setInStock(false);
+        }
+        else
+        {
+            product.setInStock(true);
+        }
+    }
+
+    public void DeleteProduct(int ID)
+    {
+        Product product = products.get(ID);
+        for (List list : lists.values())
+        {
+            ArrayList<Product> contents = list.getItems();
+            if (contents.contains(product))
+            {
+                // Add operation to remove product from list
+                // Users should also be informed that an item has been removed from one of their lists.
+            }
+        }
+        products.remove(ID);
+    }
+
+    // Need to make a method that updates all list properties once any of these edit methods has been carried out.
+
 }
