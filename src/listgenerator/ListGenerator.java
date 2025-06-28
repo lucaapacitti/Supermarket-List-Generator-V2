@@ -207,7 +207,7 @@ public class ListGenerator
 
     // Products
 
-    public int GetAvailableID()
+    public int GetAvailableProductID()
     {
         int availableID = 0;
         while (products.get(availableID) != null)
@@ -228,7 +228,7 @@ public class ListGenerator
 
     public void CreateProduct(String name, String category, double price, Location location)
     {
-        int productID = GetAvailableID();
+        int productID = GetAvailableProductID();
         price = Math.floor(price * 100) / 100.0;
         CheckValidPrice(price);
         Product product = new Product(productID, name, category, price, location);
@@ -254,31 +254,46 @@ public class ListGenerator
         return categoriesArr;
     }
 
-    public void EditProductCategory(int ID, String category)
+    public void EditProductCategory(int productID, String category)
     {
-        Product product = products.get(ID);
+        Product product = products.get(productID);
         product.setCategory(category);
     }
 
-    public void EditProductPrice(int ID, double price)
+    public void EditProductPrice(int productID, double price)
     {
         CheckValidPrice(price);
-        Product product = products.get(ID);
+        Product product = products.get(productID);
         product.setPrice(price);
     }
 
-    public void EditProductLocation(int ID, Location location)
+    public void EditProductLocation(int productID, Location location)
     {
-        Product product = products.get(ID);
+        Product product = products.get(productID);
         product.setLocation(location);
     }
 
-    public void EditProductInStock(int ID)
+    public void EditProductInStock(int productID)
     {
-        Product product = products.get(ID);
+        Product product = products.get(productID);
         if (product.getInStock())
         {
             product.setInStock(false);
+            for (List list : lists.values())
+            {
+                ArrayList<Product> contents = list.getItems();
+                if (contents.contains(product))
+                {
+                    int quantity = GetProductQuantityInList(productID, list.getID());
+                    RemoveProductFromList(productID, list.getID());
+                    User listOwner = list.getUser();
+                    ArrayList<String> messages = listOwner.getMessages();
+                    String message = "The product " + product.getName() + " is out of stock and has been removed from your list.";
+                    messages.add(message);
+                    listOwner.setMessages(messages);
+                    AutoProductReplacement(productID, list.getID(), quantity);
+                }
+            }
         }
         else
         {
@@ -286,21 +301,92 @@ public class ListGenerator
         }
     }
 
-    public void DeleteProduct(int ID)
+    public void DeleteProduct(int productID)
     {
-        Product product = products.get(ID);
+        Product product = products.get(productID);
         for (List list : lists.values())
         {
             ArrayList<Product> contents = list.getItems();
             if (contents.contains(product))
             {
-                // Add operation to remove product from list
-                // Users should also be informed that an item has been removed from one of their lists.
+                int quantity = GetProductQuantityInList(productID, list.getID());
+                RemoveProductFromList(productID, list.getID());
+                User listOwner = list.getUser();
+                ArrayList<String> messages = listOwner.getMessages();
+                String message = "The product " + product.getName() + " no longer exists and has been removed from your list " + list.getName() + ".";
+                messages.add(message);
+                listOwner.setMessages(messages);
+                AutoProductReplacement(productID, list.getID(), quantity);
             }
         }
-        products.remove(ID);
+        products.remove(productID);
     }
 
-    // Need to make a method that updates all list properties once any of these edit methods has been carried out.
+    // Lists
 
+    public int GetProductQuantityInList(int productID, int listID)
+    {
+        Product product = products.get(productID);
+        List list = lists.get(listID);
+        ArrayList<Product> contents = list.getItems();
+        int quantity = 0;
+        while (contents.contains(product))
+        {
+            quantity++;
+        }
+        return quantity;
+    }
+
+    public void RemoveProductFromList(int productID, int listID)
+    {
+        Product product = products.get(productID);
+        List list = lists.get(listID);
+        ArrayList<Product> contents = list.getItems();
+        while (contents.contains(product))
+        {
+            contents.remove(product);
+        }
+        list.setItems(contents);
+    }
+
+    public void AutoProductReplacement(int oldProductID, int listID, int quantity)
+    {
+        Product oldProduct = products.get(oldProductID);
+        int arrSize = 0;
+        for (Product product : products.values())
+        {
+            if (product.getCategory().equals(oldProduct.getCategory()) && product.getID() != oldProductID)
+            {
+                arrSize++;
+            }
+        }
+        if (arrSize != 0)
+        {
+            Product[] potentialReplacements = new Product[arrSize];
+            double oldPrice = oldProduct.getPrice();
+            Product replacement = potentialReplacements[0];
+            for (int i = 1; i < potentialReplacements.length; i++)
+            {
+                if (potentialReplacements[i].getPrice() <= oldPrice)
+                {
+                    if (potentialReplacements[i].getPrice() > replacement.getPrice())
+                    {
+                        replacement = potentialReplacements[i];
+                    }
+                }
+            }
+            List list = lists.get(listID);
+            ArrayList<Product> contents = list.getItems();
+            for (int i = 0; i < quantity; i++)
+            {
+                contents.add(replacement);
+            }
+            list.setItems(contents);
+            User listOwner = list.getUser();
+            ArrayList<String> messages = listOwner.getMessages();
+            messages.add("Product " + oldProduct.getName() + " has been replaced with " + replacement.getName() + " in your list " + list.getName() + ".");
+            listOwner.setMessages(messages);
+        }
+
+    }
 }

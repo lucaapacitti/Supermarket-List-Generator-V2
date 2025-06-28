@@ -1,5 +1,7 @@
 package listgenerator;
 
+import java.util.ArrayList;
+
 public class User
 {
     private String forename;
@@ -7,6 +9,7 @@ public class User
     private String username;
     private String password;
     private String email;
+    private ArrayList<String> messages;
 
     public User(String forename, String surname, String username, String password, String email)
     {
@@ -15,6 +18,7 @@ public class User
         this.username = username;
         this.password = password;
         this.email = email;
+        messages = new ArrayList<>();
     }
 
     public String getForename()
@@ -60,5 +64,15 @@ public class User
     public void setEmail(String email)
     {
         this.email = email;
+    }
+
+    public ArrayList<String> getMessages()
+    {
+        return messages;
+    }
+
+    public void setMessages(ArrayList<String> messages)
+    {
+        this.messages = messages;
     }
 }
