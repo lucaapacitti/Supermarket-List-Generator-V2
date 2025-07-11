@@ -267,8 +267,10 @@ public class ListGenerator
         product.setPrice(price);
     }
 
-    public void EditProductLocation(int productID, Location location)
+    public void EditProductLocation(int productID, int locationID)
     {
+        CheckValidLocation(locationID);
+        Location location = locations.get(locationID);
         Product product = products.get(productID);
         product.setLocation(location);
     }
@@ -321,8 +323,6 @@ public class ListGenerator
         }
         products.remove(productID);
     }
-
-    // Lists
 
     public int GetProductQuantityInList(int productID, int listID)
     {
@@ -387,6 +387,25 @@ public class ListGenerator
             messages.add("Product " + oldProduct.getName() + " has been replaced with " + replacement.getName() + " in your list " + list.getName() + ".");
             listOwner.setMessages(messages);
         }
+    }
 
+    // Location
+
+    public void CheckValidLocation(int locationID)
+    {
+        boolean found = false;
+        Location location = locations.get(locationID);
+        for (Location locationCheck : locations.values())
+        {
+            if (locationCheck == location)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            throw new RuntimeException("Location does not exist.");
+        }
     }
 }
