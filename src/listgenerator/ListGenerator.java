@@ -311,14 +311,15 @@ public class ListGenerator
             ArrayList<Product> contents = list.getItems();
             if (contents.contains(product))
             {
-                int quantity = GetProductQuantityInList(productID, list.getID());
-                RemoveProductFromList(productID, list.getID());
+                int listID = list.getID();
+                int quantity = GetProductQuantityInList(productID, listID);
+                RemoveProductFromList(productID, listID);
                 User listOwner = list.getUser();
                 ArrayList<String> messages = listOwner.getMessages();
                 String message = "The product " + product.getName() + " no longer exists and has been removed from your list " + list.getName() + ".";
                 messages.add(message);
                 listOwner.setMessages(messages);
-                AutoProductReplacement(productID, list.getID(), quantity);
+                AutoProductReplacement(productID, listID, quantity);
             }
         }
         products.remove(productID);
@@ -408,4 +409,15 @@ public class ListGenerator
             throw new RuntimeException("Location does not exist.");
         }
     }
+
+    public String GetLocationName(int locationID)
+    {
+        Location location = locations.get(locationID);
+        return location.getName();
+    }
+
+    // Stores (come back to this)
+
+    // Lists
+
 }
