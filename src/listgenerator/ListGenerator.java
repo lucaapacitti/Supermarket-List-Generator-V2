@@ -2,6 +2,7 @@ package listgenerator;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Queue;
 
 public class ListGenerator
 {
@@ -10,6 +11,7 @@ public class ListGenerator
     private HashMap<Integer, List> lists;
     private HashMap<Integer, Store> stores;
     private HashMap<Integer, Location> locations;
+    private HashMap<Integer, PreList> preLists; // Not to be serialised.
 
     public ListGenerator()
     {
@@ -18,6 +20,7 @@ public class ListGenerator
         this.lists = new HashMap<>();
         this.stores = new HashMap<>();
         this.locations = new HashMap<>();
+        this.preLists = new HashMap<>();
     }
 
     // Users
@@ -419,5 +422,77 @@ public class ListGenerator
     // Stores (come back to this)
 
     // Lists
+
+    // Method that adds product categories to pre-list, and in what quantity
+    // Method that removes product categories from pre-list
+
+    public void CheckProductCategoryExists(String productCategory)
+    throws RuntimeException
+    {
+        boolean found = false;
+        String[] productCategories = GetAllProductCategories();
+        for (String category : productCategories)
+        {
+            if (category.equals(productCategory))
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            throw new RuntimeException("No products assigned to that product category.");
+        }
+    }
+
+    public int GetAvailablePreListID()
+    {
+        int availableID = 0;
+        while (preLists.get(availableID) != null)
+        {
+            availableID++;
+        }
+        return availableID;
+    }
+
+    public void CreatePreList()
+    {
+        int newID = GetAvailablePreListID();
+        PreList preList = new PreList(newID);
+        preLists.put(newID, preList);
+    }
+
+    public void AddToPreList(int preListID, String productCategory, int quantity)
+    {
+        CheckProductCategoryExists(productCategory);
+        PreList preList = preLists.get(preListID);
+        ArrayList<String> contents = preList.getContents();
+        ArrayList<Integer> priorities = preList.getPriorities();
+        for (int i = 0; i < quantity; i++)
+        {
+            contents.add(productCategory);
+            priorities.add(0);
+        }
+        preList.setContents(contents);
+        preList.setPriorities(priorities);
+    }
+
+    // Method to give priority
+    // Method to remove priority and rearrange existing ones if needed
+    // Method to remove items and rearrange existing priorities if needed
+    // Method to insert ArrayList of priorities into a Queue
+    
+    public int GetAvailableListID()
+    {
+        int availableID = 0;
+        while (lists.get(availableID) != null)
+        {
+            availableID++;
+        }
+        return availableID;
+    }
+
+    // Method to initialise list
+    // Method to generate list from pre-list
 
 }
