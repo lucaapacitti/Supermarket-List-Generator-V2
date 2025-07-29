@@ -1,18 +1,20 @@
 package listgenerator;
 
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.LinkedList;
 
 public class PreList
 {
     private int ID;
     private ArrayList<String> contents;
-    private ArrayList<Integer> priorities; 
+    private Queue<Integer> priorities; 
 
     public PreList(int ID)
     {
         this.ID = ID;
         contents = new ArrayList<>();
-        priorities = new ArrayList<>();
+        priorities = new LinkedList<>();
     }
 
     public int getID()
@@ -30,12 +32,12 @@ public class PreList
         this.contents = contents;
     }
 
-    public ArrayList<Integer> getPriorities()
+    public Queue<Integer> getPriorities()
     {
         return priorities;
     }
 
-    public void setPriorities(ArrayList<Integer> priorities)
+    public void setPriorities(Queue<Integer> priorities)
     {
         this.priorities = priorities;
     }

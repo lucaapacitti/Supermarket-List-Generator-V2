@@ -3,6 +3,7 @@ package listgenerator;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Queue;
+import java.util.LinkedList;
 
 public class ListGenerator
 {
@@ -467,7 +468,7 @@ public class ListGenerator
         CheckProductCategoryExists(productCategory);
         PreList preList = preLists.get(preListID);
         ArrayList<String> contents = preList.getContents();
-        ArrayList<Integer> priorities = preList.getPriorities();
+        Queue<Integer> priorities = preList.getPriorities();
         for (int i = 0; i < quantity; i++)
         {
             contents.add(productCategory);
@@ -477,7 +478,42 @@ public class ListGenerator
         preList.setPriorities(priorities);
     }
 
-    // Method to give priority
+    public int FindNextPriority(Queue<Integer> priorities)
+    {
+        int next = 0;
+        for (int priority : priorities)
+        {
+            if (priority > next)
+            {
+                next = priority;
+            }
+        }
+        next++;
+        return next;
+    }
+
+    public void AddPriorityInPreList(int preListID, String productCategory)
+    {
+        PreList preList = preLists.get(preListID);
+        ArrayList<String> contents = preList.getContents();
+        Queue<Integer> priorities = preList.getPriorities();
+        int priorityNum = FindNextPriority(priorities);
+        ArrayList<Integer> indexes = new ArrayList<>();
+        for (int i = 0; i < contents.size(); i++)
+        {
+            if (contents.get(i).equals(productCategory))
+            {
+                indexes.add(i);
+            }
+        }
+        Queue<Integer> newPriorities = new LinkedList<>();
+        for (int i = 0; i < contents.size(); i++)
+        {
+            int check = priorities.peek();
+            // Need to finish
+        }
+
+    }
     // Method to remove priority and rearrange existing ones if needed
     // Method to remove items and rearrange existing priorities if needed
     // Method to insert ArrayList of priorities into a Queue
