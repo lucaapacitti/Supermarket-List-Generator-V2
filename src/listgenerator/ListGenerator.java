@@ -496,8 +496,8 @@ public class ListGenerator
     {
         PreList preList = preLists.get(preListID);
         ArrayList<String> contents = preList.getContents();
-        Queue<Integer> priorities = preList.getPriorities();
-        int priorityNum = FindNextPriority(priorities);
+        Queue<Integer> oldPriorities = preList.getPriorities();
+        int priorityNum = FindNextPriority(oldPriorities);
         ArrayList<Integer> indexes = new ArrayList<>();
         for (int i = 0; i < contents.size(); i++)
         {
@@ -509,11 +509,18 @@ public class ListGenerator
         Queue<Integer> newPriorities = new LinkedList<>();
         for (int i = 0; i < contents.size(); i++)
         {
-            int check = priorities.peek();
-            // Need to finish
+            int checkPriority = oldPriorities.poll();
+            if (indexes.contains(i))
+            {
+                newPriorities.add(priorityNum);
+            }
+            else
+            {
+                newPriorities.add(checkPriority);
+            }
         }
-
     }
+    
     // Method to remove priority and rearrange existing ones if needed
     // Method to remove items and rearrange existing priorities if needed
     // Method to insert ArrayList of priorities into a Queue
