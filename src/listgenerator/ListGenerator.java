@@ -468,62 +468,85 @@ public class ListGenerator
         CheckProductCategoryExists(productCategory);
         PreList preList = preLists.get(preListID);
         ArrayList<String> contents = preList.getContents();
-        Queue<Integer> priorities = preList.getPriorities();
         for (int i = 0; i < quantity; i++)
         {
             contents.add(productCategory);
-            priorities.add(0);
         }
-        preList.setContents(contents);
-        preList.setPriorities(priorities);
-    }
-
-    public int FindNextPriority(Queue<Integer> priorities)
-    {
-        int next = 0;
-        for (int priority : priorities)
-        {
-            if (priority > next)
-            {
-                next = priority;
-            }
-        }
-        next++;
-        return next;
     }
 
     public void AddPriorityInPreList(int preListID, String productCategory)
     {
         PreList preList = preLists.get(preListID);
-        ArrayList<String> contents = preList.getContents();
-        Queue<Integer> oldPriorities = preList.getPriorities();
-        int priorityNum = FindNextPriority(oldPriorities);
-        ArrayList<Integer> indexes = new ArrayList<>();
-        for (int i = 0; i < contents.size(); i++)
+        Queue<String> priorities = preList.getPriorities();
+        if (!priorities.contains(productCategory))
         {
-            if (contents.get(i).equals(productCategory))
-            {
-                indexes.add(i);
-            }
-        }
-        Queue<Integer> newPriorities = new LinkedList<>();
-        for (int i = 0; i < contents.size(); i++)
-        {
-            int checkPriority = oldPriorities.poll();
-            if (indexes.contains(i))
-            {
-                newPriorities.add(priorityNum);
-            }
-            else
-            {
-                newPriorities.add(checkPriority);
-            }
+            priorities.add(productCategory);
         }
     }
     
-    // Method to remove priority and rearrange existing ones if needed
-    // Method to remove items and rearrange existing priorities if needed
-    // Method to insert ArrayList of priorities into a Queue
+    public void RemovePriorityFromPreList(int preListID, String productCategory)
+    {  
+        PreList preList = preLists.get(preListID);
+        Queue<String> oldPriorities = preList.getPriorities();
+        if (oldPriorities.contains(productCategory))
+        {
+            Queue<String> newPriorities = new LinkedList<>();
+            for (String categoryCheck : oldPriorities)
+            {
+                if (!categoryCheck.equals(productCategory))
+                {
+                    newPriorities.add(categoryCheck);
+                }
+            }
+            preList.setPriorities(newPriorities);
+        }
+    }
+
+    public int GetPriorityQueuePosition(int preListID, String productCategory)
+    {
+        PreList preList = preLists.get(preListID);
+        Queue<String> priorities = preList.getPriorities();
+        int position = 1;
+        for (String categoryCheck : priorities)
+        {
+            if (categoryCheck.equals(productCategory))
+            {
+                return position;
+            }
+            else
+            {
+                position++;
+            }
+        }
+        return -1;
+    }
+
+    public void RemoveOneFromPreList(int preListID, String productCategory)
+    {  
+        PreList preList = preLists.get(preListID);
+        ArrayList<String> contents = preList.getContents();
+        Queue<String> priorities = preList.getPriorities();
+        contents.remove(productCategory);
+        if (!contents.contains(productCategory) && priorities.contains(productCategory))
+        {
+            RemovePriorityFromPreList(preListID, productCategory);
+        }
+    }
+
+    public void RemoveAllFromPreList(int preListID, String productCategory)
+    {  
+        PreList preList = preLists.get(preListID);
+        ArrayList<String> contents = preList.getContents();
+        Queue<String> priorities = preList.getPriorities();
+        while (contents.contains(productCategory))
+        {
+            contents.remove(productCategory);
+        }
+        if (priorities.contains(productCategory))
+        {
+            RemovePriorityFromPreList(preListID, productCategory);
+        }
+    }
     
     public int GetAvailableListID()
     {
