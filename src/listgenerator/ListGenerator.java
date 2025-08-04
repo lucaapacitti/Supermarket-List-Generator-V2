@@ -558,7 +558,15 @@ public class ListGenerator
         return availableID;
     }
 
-    // Method to initialise list
+    public void CreateList(String name, int userID, int storeID)
+    {
+        int listID = GetAvailableListID();
+        User user = users.get(userID);
+        Store store = stores.get(storeID);
+        List list = new List(listID, name, user, store);
+        lists.put(listID, list);
+    }
+    
     // Method to generate list from pre-list
 
 }
