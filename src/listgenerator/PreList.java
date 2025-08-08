@@ -8,7 +8,7 @@ public class PreList
 {
     private int ID;
     private ArrayList<String> contents;
-    private Queue<Integer> priorities; 
+    private Queue<String> priorities; 
 
     public PreList(int ID)
     {
@@ -32,12 +32,12 @@ public class PreList
         this.contents = contents;
     }
 
-    public Queue<Integer> getPriorities()
+    public Queue<String> getPriorities()
     {
         return priorities;
     }
 
-    public void setPriorities(Queue<Integer> priorities)
+    public void setPriorities(Queue<String> priorities)
     {
         this.priorities = priorities;
     }

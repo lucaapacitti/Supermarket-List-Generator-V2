@@ -221,20 +221,34 @@ public class ListGenerator
         return availableID;
     }
 
+    public double CheckDoubleType(String string)
+    throws NumberFormatException
+    {
+       try
+       {
+           return Double.parseDouble(string);
+       }
+       catch (NumberFormatException e)
+       {
+           throw new NumberFormatException("A numerical value was expected.");
+       }
+    }
+
     public void CheckValidPrice(double price)
-    throws RuntimeException
     {
         if (price < 0.01)
         {
-            throw new RuntimeException("Product price must be minimum £0.01");
+            throw new IllegalArgumentException("Price must be minimum £0.01");
         }
     }
 
-    public void CreateProduct(String name, String category, double price, Location location)
+    public void CreateProduct(String name, String category, String priceString, Location location)
+    throws NumberFormatException, IllegalArgumentException
     {
-        int productID = GetAvailableProductID();
+        double price = CheckDoubleType(priceString);
         price = Math.floor(price * 100) / 100.0;
         CheckValidPrice(price);
+        int productID = GetAvailableProductID();
         Product product = new Product(productID, name, category, price, location);
         products.put(productID, product);
     }
@@ -424,9 +438,6 @@ public class ListGenerator
 
     // Lists
 
-    // Method that adds product categories to pre-list, and in what quantity
-    // Method that removes product categories from pre-list
-
     public void CheckProductCategoryExists(String productCategory)
     throws RuntimeException
     {
@@ -558,15 +569,26 @@ public class ListGenerator
         return availableID;
     }
 
-    public void CreateList(String name, int userID, int storeID)
+    public void CheckValidBudget(double budget)
+    throws IllegalArgumentException
     {
+        if (budget < 0.01)
+        {
+            throw new IllegalArgumentException("Budget must be at least £0.01");
+        }
+    }
+
+    public void CreateList(String listName, String budgetString, String username, int storeID)
+    {
+        double budget = CheckDoubleType(budgetString);
+        budget = Math.floor(budget * 100) / 100.0;
+        CheckValidBudget(budget);
         int listID = GetAvailableListID();
-        User user = users.get(userID);
+        User user = users.get(username);
         Store store = stores.get(storeID);
-        List list = new List(listID, name, user, store);
+        List list = new List(listID, listName, user, budget, store);
         lists.put(listID, list);
     }
     
     // Method to generate list from pre-list
-
 }
