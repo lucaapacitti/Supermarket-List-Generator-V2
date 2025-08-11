@@ -478,10 +478,15 @@ public class ListGenerator
     {
         CheckProductCategoryExists(productCategory);
         PreList preList = preLists.get(preListID);
-        ArrayList<String> contents = preList.getContents();
-        for (int i = 0; i < quantity; i++)
+        HashMap<String, Integer> contents = preList.getContents();
+        if (contents.get(productCategory) != null)
         {
-            contents.add(productCategory);
+            int newQuantity = contents.get(productCategory) + quantity;
+            contents.put(productCategory, newQuantity);
+        }
+        else
+        {
+            contents.put(productCategory, quantity);
         }
     }
 
@@ -535,24 +540,30 @@ public class ListGenerator
     public void RemoveOneFromPreList(int preListID, String productCategory)
     {  
         PreList preList = preLists.get(preListID);
-        ArrayList<String> contents = preList.getContents();
+        HashMap<String, Integer> contents = preList.getContents();
         Queue<String> priorities = preList.getPriorities();
-        contents.remove(productCategory);
-        if (!contents.contains(productCategory) && priorities.contains(productCategory))
+        int currentQuantity = contents.get(productCategory);
+        if (currentQuantity == 1)
         {
-            RemovePriorityFromPreList(preListID, productCategory);
+            contents.remove(productCategory);
+            if (priorities.contains(productCategory))
+            {
+                RemovePriorityFromPreList(preListID, productCategory);
+            }
+        }
+        else
+        {
+            int newQuantity = currentQuantity - 1;
+            contents.put(productCategory, newQuantity);
         }
     }
 
     public void RemoveAllFromPreList(int preListID, String productCategory)
     {  
         PreList preList = preLists.get(preListID);
-        ArrayList<String> contents = preList.getContents();
+        HashMap<String, Integer> contents = preList.getContents();
         Queue<String> priorities = preList.getPriorities();
-        while (contents.contains(productCategory))
-        {
-            contents.remove(productCategory);
-        }
+        contents.remove(productCategory);
         if (priorities.contains(productCategory))
         {
             RemovePriorityFromPreList(preListID, productCategory);
@@ -591,4 +602,38 @@ public class ListGenerator
     }
     
     // Method to generate list from pre-list
+
+    public void GenerateList(int listID, int preListID)
+    {
+        // Iterate through all categories in prelist
+        // For each category, find the product with the lowest price
+        // Add that to the list
+        PreList preList = preLists.get(preListID);
+        List list = lists.get(listID);
+        ArrayList<Product> listProducts = list.getItems();
+        HashMap<String, Integer> listCategories = preList.getContents();
+        for (String category : listCategories.keySet())
+        {
+            Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
+            for (Product product : products.values())
+            {
+                if (product.getCategory().equals(category) && product.getPrice() < toAdd.getPrice() && product.getInStock())
+                {
+                    toAdd = product;
+                }
+            }
+            if (toAdd.getID() != -1)
+            {
+                int quantity = listCategories.get(category);
+                for (int i = 0; i < quantity; i++)
+                {
+                    listProducts.add(toAdd);
+                }
+            }
+        }
+        // Once this is done, iterate through all categories in priority queue
+        // Find product with the next lowest price
+        // If it exists, and adding it to the queue would not cause cost to exceed budget, add it
+
+    }
 }

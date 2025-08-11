@@ -1,19 +1,19 @@
 package listgenerator;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.LinkedList;
 
 public class PreList
 {
     private int ID;
-    private ArrayList<String> contents;
+    private HashMap<String, Integer> contents;
     private Queue<String> priorities; 
 
     public PreList(int ID)
     {
         this.ID = ID;
-        contents = new ArrayList<>();
+        contents = new HashMap<>();
         priorities = new LinkedList<>();
     }
 
@@ -22,12 +22,12 @@ public class PreList
         return ID;
     }
 
-    public ArrayList<String> getContents()
+    public HashMap<String, Integer> getContents()
     {
         return contents;
     }
 
-    public void setContents(ArrayList<String> contents)
+    public void setContents(HashMap<String, Integer> contents)
     {
         this.contents = contents;
     }
