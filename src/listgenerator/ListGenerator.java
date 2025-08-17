@@ -601,7 +601,25 @@ public class ListGenerator
         lists.put(listID, list);
     }
     
-    // Method to generate list from pre-list
+    public double GetListCost(int listID)
+    {
+        List list = lists.get(listID);
+        ArrayList<Product> products = list.getItems();
+        double cost = 0.00;
+        for (Product product : products)
+        {
+            cost = cost + product.getPrice();
+        }
+        return cost;
+    }
+
+    public double GetListSavings(int listID)
+    {
+        List list = lists.get(listID);
+        double listCost = GetListCost(listID);
+        double budget = list.getBudget();
+        return budget - listCost;
+    }
 
     public void GenerateList(int listID, int preListID)
     {
@@ -611,8 +629,8 @@ public class ListGenerator
         PreList preList = preLists.get(preListID);
         List list = lists.get(listID);
         ArrayList<Product> listProducts = list.getItems();
-        HashMap<String, Integer> listCategories = preList.getContents();
-        for (String category : listCategories.keySet())
+        HashMap<String, Integer> preListCategories = preList.getContents();
+        for (String category : preListCategories.keySet())
         {
             Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
             for (Product product : products.values())
@@ -624,16 +642,78 @@ public class ListGenerator
             }
             if (toAdd.getID() != -1)
             {
-                int quantity = listCategories.get(category);
+                int quantity = preListCategories.get(category);
                 for (int i = 0; i < quantity; i++)
                 {
                     listProducts.add(toAdd);
                 }
             }
         }
-        // Once this is done, iterate through all categories in priority queue
-        // Find product with the next lowest price
-        // If it exists, and adding it to the queue would not cause cost to exceed budget, add it
-
+        if (GetListSavings(listID) > 0.00)
+        {
+            Queue<String> priorities = preList.getPriorities();
+            for (String category : priorities)
+            {
+                Product productInList = null;
+                int quantityInList = 0;
+                for (Product product : listProducts)
+                {
+                    if (product.getCategory().equals(category))
+                    {
+                        productInList = product;
+                        quantityInList++;
+                    }
+                }
+                if (productInList != null && quantityInList > 0)
+                {
+                    Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
+                    for (Product product : products.values())
+                    {
+                        if (product != productInList && product.getCategory().equals(category) && product.getPrice() > productInList.getPrice() && product.getInStock())
+                        {
+                            if (product.getPrice() < toAdd.getPrice())
+                            {
+                                toAdd = product;
+                            }
+                        }
+                    }
+                    double productPriceDifference = toAdd.getPrice() - productInList.getPrice();
+                    int quantityToAdd = quantityInList;
+                    for (int i = 1; i <= quantityInList; i++)
+                    {
+                        if (GetListCost(listID) + (productPriceDifference * i) > list.getBudget())
+                        {
+                            quantityToAdd = i - 1;
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < quantityToAdd; i++)
+                    {
+                        listProducts.remove(productInList);
+                        listProducts.add(toAdd);
+                    }
+                }
+            }
+        }
+        // Check list is still within budget
+        // If so, loop through entire list
+        // Find the quantity that a particular product is in
+        // Find the next cheapest product of that category
+        // Determine how many, out of the quantity, can be replaced so that the list remains within budget
+        // Set replacementMade to true
+        // If an entire list loop is made without a replacement being made, generation is complete.
     }
+
+    // Method to add item in a certain quantity to generated list
+    // Method to remove item in a certain quantity from generated list
+    // Function to calculate savings (list cost - budget)
+    // Method to delete a list
+    // Method to change a list's name
+    // Method to change a list's store location
+    // Method to sort list by product price
+    // Method to sort list A-Z
+    // Method to sort list by shortest path (Default)
+    // Method to serialise data structures
+    // Method to deserialise data structures
+
 }
