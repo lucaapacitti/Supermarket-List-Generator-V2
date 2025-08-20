@@ -623,9 +623,6 @@ public class ListGenerator
 
     public void GenerateList(int listID, int preListID)
     {
-        // Iterate through all categories in prelist
-        // For each category, find the product with the lowest price
-        // Add that to the list
         PreList preList = preLists.get(preListID);
         List list = lists.get(listID);
         ArrayList<Product> listProducts = list.getItems();
@@ -695,13 +692,25 @@ public class ListGenerator
                 }
             }
         }
-        // Check list is still within budget
-        // If so, loop through entire list
-        // Find the quantity that a particular product is in
-        // Find the next cheapest product of that category
-        // Determine how many, out of the quantity, can be replaced so that the list remains within budget
-        // Set replacementMade to true
-        // If an entire list loop is made without a replacement being made, generation is complete.
+        if (GetListSavings(listID) > 0.00)
+        {
+            boolean anyChangesMade = true;
+            while (anyChangesMade)
+            {
+                anyChangesMade = false;
+                for (Product product : listProducts)
+                {
+                    // Get the category
+                    // Find the next price up product of that category
+                    // If no such product, then 'next'
+                    // Find the difference between original and proposed new product
+                    // If it can fit without exceeding the budget, replace it and set the boolean to true for this loop
+                    // Otherwise, 'next'
+                    // If a full loop finished and boolean is still false, generation is complete.
+                }
+            }
+        }
+
     }
 
     // Method to add item in a certain quantity to generated list
