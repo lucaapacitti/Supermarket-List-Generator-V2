@@ -666,7 +666,7 @@ public class ListGenerator
                     Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
                     for (Product product : products.values())
                     {
-                        if (product != productInList && product.getCategory().equals(category) && product.getPrice() > productInList.getPrice() && product.getInStock())
+                        if (product.getID() != productInList.getID() && product.getCategory().equals(category) && product.getPrice() > productInList.getPrice() && product.getInStock())
                         {
                             if (product.getPrice() < toAdd.getPrice())
                             {
@@ -674,20 +674,23 @@ public class ListGenerator
                             }
                         }
                     }
-                    double productPriceDifference = toAdd.getPrice() - productInList.getPrice();
-                    int quantityToAdd = quantityInList;
-                    for (int i = 1; i <= quantityInList; i++)
+                    if (toAdd.getID() != -1)
                     {
-                        if (GetListCost(listID) + (productPriceDifference * i) > list.getBudget())
+                        double productPriceDifference = toAdd.getPrice() - productInList.getPrice();
+                        int quantityToAdd = quantityInList;
+                        for (int i = 1; i <= quantityInList; i++)
                         {
-                            quantityToAdd = i - 1;
-                            break;
+                            if (GetListCost(listID) + (productPriceDifference * i) > list.getBudget())
+                            {
+                                quantityToAdd = i - 1;
+                                break;
+                            }
                         }
-                    }
-                    for (int i = 0; i < quantityToAdd; i++)
-                    {
-                        listProducts.remove(productInList);
-                        listProducts.add(toAdd);
+                        for (int i = 0; i < quantityToAdd; i++)
+                        {
+                            listProducts.remove(productInList);
+                            listProducts.add(toAdd);
+                        }
                     }
                 }
             }
@@ -698,19 +701,33 @@ public class ListGenerator
             while (anyChangesMade)
             {
                 anyChangesMade = false;
-                for (Product product : listProducts)
+                for (Product productInList : listProducts)
                 {
-                    // Get the category
-                    // Find the next price up product of that category
-                    // If no such product, then 'next'
-                    // Find the difference between original and proposed new product
-                    // If it can fit without exceeding the budget, replace it and set the boolean to true for this loop
-                    // Otherwise, 'next'
-                    // If a full loop finished and boolean is still false, generation is complete.
+                    String category = productInList.getCategory();
+                    Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
+                    for (Product product : products.values())
+                    {
+                        if (product.getID() != productInList.getID() && product.getCategory().equals(category) && product.getPrice() > productInList.getPrice() && product.getInStock())
+                        {
+                            if (product.getPrice() < toAdd.getPrice())
+                            {
+                                toAdd = product;
+                            }
+                        }
+                    }
+                    if (toAdd.getID() != -1)
+                    {
+                        double productPriceDifference = toAdd.getPrice() - productInList.getPrice();
+                        if (GetListSavings(listID) + productPriceDifference <= list.getBudget())
+                        {
+                            anyChangesMade = true;
+                            listProducts.remove(productInList);
+                            listProducts.add(toAdd);
+                        }
+                    }
                 }
             }
         }
-
     }
 
     // Method to add item in a certain quantity to generated list
