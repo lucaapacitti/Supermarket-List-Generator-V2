@@ -10,7 +10,6 @@ public class ListGenerator
     private HashMap<Integer, Product> products;
     private HashMap<String, User> users;
     private HashMap<Integer, List> lists;
-    private HashMap<Integer, Store> stores;
     private HashMap<Integer, Location> locations;
     private HashMap<Integer, PreList> preLists; // Not to be serialised.
 
@@ -19,7 +18,6 @@ public class ListGenerator
         this.products = new HashMap<>();
         this.users = new HashMap<>();
         this.lists = new HashMap<>();
-        this.stores = new HashMap<>();
         this.locations = new HashMap<>();
         this.preLists = new HashMap<>();
     }
@@ -50,15 +48,6 @@ public class ListGenerator
         if (!lists.containsKey(listID))
         {
             throw new RuntimeException("List not found in database.");
-        }
-    }
-
-    public void CheckStoreExists(int storeID)
-    throws RuntimeException
-    {
-        if (!stores.containsKey(storeID))
-        {
-            throw new RuntimeException("Store not found in database.");
         }
     }
 
@@ -508,8 +497,6 @@ public class ListGenerator
         return location.getName();
     }
 
-    // Stores (come back to this)
-
     // Lists
 
     public void CheckProductCategoryExists(String productCategory)
@@ -664,15 +651,14 @@ public class ListGenerator
         }
     }
 
-    public void CreateList(String listName, String budgetString, String username, int storeID)
+    public void CreateList(String listName, String budgetString, String username)
     {
         double budget = CheckDoubleType(budgetString);
         budget = Math.floor(budget * 100) / 100.0;
         CheckValidBudget(budget);
         int listID = GetAvailableListID();
         User user = users.get(username);
-        Store store = stores.get(storeID);
-        List list = new List(listID, listName, user, budget, store);
+        List list = new List(listID, listName, user, budget);
         lists.put(listID, list);
     }
     
@@ -843,13 +829,6 @@ public class ListGenerator
         List list = lists.get(listID);
         list.setName(name);
     }
-    
-    public void EditListStore(int listID, int storeID)
-    {
-        List list = lists.get(listID);
-        Store store = stores.get(storeID);
-        list.setStore(store);
-    }
 
     public void SortProductsByAscPrice(int listID)
     {
@@ -886,7 +865,25 @@ public class ListGenerator
             listProducts.set(j + 1, productToCompare);
         }
     }
-    // Method to sort list A-Z
+
+    public void SortProductsAlphabetically(int listID)
+    {
+        List list = lists.get(listID);
+        ArrayList<Product> listProducts = list.getItems();
+        for (int i = 1; i < listProducts.size(); i++)
+        {
+            Product productToCompare = listProducts.get(i);
+            String nameToCompare = productToCompare.getName();
+            int j = i - 1;
+            while (j >= 0 && nameToCompare.compareToIgnoreCase(listProducts.get(j).getName()) < 0)
+            {
+                listProducts.set(j + 1, listProducts.get(j));
+                j--;
+            }
+            listProducts.set(j + 1, productToCompare);
+        }
+    }
+
     // Method to sort list by shortest path (Default)
     // Method to serialise data structures
     // Method to deserialise data structures

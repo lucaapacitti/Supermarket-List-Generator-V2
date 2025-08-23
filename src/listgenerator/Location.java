@@ -6,7 +6,6 @@ public class Location
     private String name;
 
     // No constructor as no new locations should be made.
-    // The layout may vary with different stores, but the total number of locations should remain constant.
 
     public int getID()
     {

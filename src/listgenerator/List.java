@@ -9,16 +9,14 @@ public class List
     private User user;
     private double budget;
     private ArrayList<Product> items;
-    private Store store;
 
-    public List(int ID, String name, User user, double budget, Store store)
+    public List(int ID, String name, User user, double budget)
     {
         this.ID = ID;
         this.name = name;
         this.user = user;
         this.budget = budget;
         items = new ArrayList<Product>();
-        this.store = store;
     }
 
     public int getID()
@@ -59,15 +57,5 @@ public class List
     public void setItems(ArrayList<Product> items)
     {
         this.items = items;
-    }
-
-    public Store getStore()
-    {
-        return store;
-    }
-
-    public void setStore(Store store)
-    {
-        this.store = store;
     }
 }
