@@ -24,6 +24,62 @@ public class ListGenerator
         this.preLists = new HashMap<>();
     }
 
+    // Data structure exception handling
+
+    public void CheckProductExists(int productID)
+    throws RuntimeException
+    {
+        if (!products.containsKey(productID))
+        {
+            throw new RuntimeException("Product not found in database.");
+        }
+    }
+
+    public void CheckUserExists(String username)
+    throws RuntimeException
+    {
+        if (!users.containsKey(username))
+        {
+            throw new RuntimeException("User not found in database.");
+        }
+    }
+
+    public void CheckListExists(int listID)
+    throws RuntimeException
+    {
+        if (!lists.containsKey(listID))
+        {
+            throw new RuntimeException("List not found in database.");
+        }
+    }
+
+    public void CheckStoreExists(int storeID)
+    throws RuntimeException
+    {
+        if (!stores.containsKey(storeID))
+        {
+            throw new RuntimeException("Store not found in database.");
+        }
+    }
+
+    public void CheckLocationExists(int locationID)
+    throws RuntimeException
+    {
+        if (!locations.containsKey(locationID))
+        {
+            throw new RuntimeException("Location not found in database.");
+        }
+    }
+
+    public void CheckPreListExists(int preListID)
+    throws RuntimeException
+    {
+        if (!preLists.containsKey(preListID))
+        {
+            throw new RuntimeException("Pre-list not found in database.");
+        }
+    }
+    
     // Users
 
     public void CheckLegalUsername(String username)
@@ -730,8 +786,24 @@ public class ListGenerator
         }
     }
 
-    // Method to add item in a certain quantity to generated list
-    // Method to remove item in a certain quantity from generated list
+    public void AddProductToList(int listID, int productID, int quantity)
+    {
+        List list = lists.get(listID);
+        ArrayList<Product> listProducts = list.getItems();
+        Product product = products.get(productID);
+        for (int i = 0; i < quantity; i++)
+        {
+            listProducts.add(product);
+        }
+    }
+
+    public void RemoveOneProductFromList(int listID, int productID)
+    {
+        List list = lists.get(listID);
+        ArrayList<Product> listProducts = list.getItems();
+        Product product = products.get(productID);
+        listProducts.remove(product);
+    }
     // Function to calculate savings (list cost - budget)
     // Method to delete a list
     // Method to change a list's name
