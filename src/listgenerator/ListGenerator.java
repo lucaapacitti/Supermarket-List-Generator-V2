@@ -79,6 +79,34 @@ public class ListGenerator
             throw new RuntimeException("Pre-list not found in database.");
         }
     }
+
+    // Data type exception handling
+
+    public double CheckDoubleType(String string)
+    throws NumberFormatException
+    {
+       try
+       {
+           return Double.parseDouble(string);
+       }
+       catch (NumberFormatException e)
+       {
+           throw new NumberFormatException("A numerical value was expected.");
+       }
+    }
+
+    public int CheckIntType(String string)
+    throws NumberFormatException
+    {
+       try
+       {
+           return Integer.parseInt(string);
+       }
+       catch (NumberFormatException e)
+       {
+           throw new NumberFormatException("An integer was expected.");
+       }
+    }
     
     // Users
 
@@ -232,6 +260,7 @@ public class ListGenerator
 
     public int[] GetUserLists(String username)
     {
+        CheckUserExists(username);
         int arrSize = 0;
         for (List list : lists.values())
         {
@@ -255,6 +284,7 @@ public class ListGenerator
 
     public void DeleteUser(String username)
     {
+        CheckUserExists(username);
         for (List list : lists.values())
         {
             if (list.getUser().getUsername() == username)
@@ -275,19 +305,6 @@ public class ListGenerator
             availableID++;
         }
         return availableID;
-    }
-
-    public double CheckDoubleType(String string)
-    throws NumberFormatException
-    {
-       try
-       {
-           return Double.parseDouble(string);
-       }
-       catch (NumberFormatException e)
-       {
-           throw new NumberFormatException("A numerical value was expected.");
-       }
     }
 
     public void CheckValidPrice(double price)
@@ -334,8 +351,9 @@ public class ListGenerator
         product.setCategory(category);
     }
 
-    public void EditProductPrice(int productID, double price)
+    public void EditProductPrice(int productID, String priceString)
     {
+        double price = CheckDoubleType(priceString);
         CheckValidPrice(price);
         Product product = products.get(productID);
         product.setPrice(price);
@@ -530,8 +548,9 @@ public class ListGenerator
         preLists.put(newID, preList);
     }
 
-    public void AddToPreList(int preListID, String productCategory, int quantity)
+    public void AddToPreList(int preListID, String productCategory, String quantityString)
     {
+        int quantity = CheckIntType(quantityString);
         CheckProductCategoryExists(productCategory);
         PreList preList = preLists.get(preListID);
         HashMap<String, Integer> contents = preList.getContents();
@@ -786,8 +805,9 @@ public class ListGenerator
         }
     }
 
-    public void AddProductToList(int listID, int productID, int quantity)
+    public void AddProductToList(int listID, int productID, String quantityString)
     {
+        int quantity = CheckIntType(quantityString);
         List list = lists.get(listID);
         ArrayList<Product> listProducts = list.getItems();
         Product product = products.get(productID);
@@ -797,18 +817,75 @@ public class ListGenerator
         }
     }
 
-    public void RemoveOneProductFromList(int listID, int productID)
+    public void RemoveOneProductInstanceFromList(int listID, int productID)
     {
         List list = lists.get(listID);
         ArrayList<Product> listProducts = list.getItems();
         Product product = products.get(productID);
         listProducts.remove(product);
     }
-    // Function to calculate savings (list cost - budget)
-    // Method to delete a list
-    // Method to change a list's name
-    // Method to change a list's store location
-    // Method to sort list by product price
+
+    public void RemoveAllProductInstancesFromList(int listID, int productID)
+    {
+        List list = lists.get(listID);
+        ArrayList<Product> listProducts = list.getItems();
+        Product product = products.get(productID);
+        while (listProducts.remove(product)) {};
+    }
+
+    public void DeleteList(int listID)
+    {
+        lists.remove(listID);
+    }
+
+    public void EditListName(int listID, String name)
+    {
+        List list = lists.get(listID);
+        list.setName(name);
+    }
+    
+    public void EditListStore(int listID, int storeID)
+    {
+        List list = lists.get(listID);
+        Store store = stores.get(storeID);
+        list.setStore(store);
+    }
+
+    public void SortProductsByAscPrice(int listID)
+    {
+        List list = lists.get(listID);
+        ArrayList<Product> listProducts = list.getItems();
+        for (int i = 1; i < listProducts.size(); i++)
+        {
+            Product productToCompare = listProducts.get(i);
+            double priceToCompare = productToCompare.getPrice();
+            int j = i - 1;
+            while (j >= 0 && listProducts.get(j).getPrice() > priceToCompare)
+            {
+                listProducts.set(j + 1, listProducts.get(j));
+                j--;
+            }
+            listProducts.set(j + 1, productToCompare);
+        }
+    }
+
+    public void SortProductsByDescPrice(int listID)
+    {
+        List list = lists.get(listID);
+        ArrayList<Product> listProducts = list.getItems();
+        for (int i = 1; i < listProducts.size(); i++)
+        {
+            Product productToCompare = listProducts.get(i);
+            double priceToCompare = productToCompare.getPrice();
+            int j = i - 1;
+            while (j >= 0 && listProducts.get(j).getPrice() < priceToCompare)
+            {
+                listProducts.set(j + 1, listProducts.get(j));
+                j--;
+            }
+            listProducts.set(j + 1, productToCompare);
+        }
+    }
     // Method to sort list A-Z
     // Method to sort list by shortest path (Default)
     // Method to serialise data structures
