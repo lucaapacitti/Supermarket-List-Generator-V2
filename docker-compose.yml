@@ -10,3 +10,5 @@ services:
       MYSQL_PASSWORD: jean-philippe-mateta
     ports:
       - "3306:3306"
+
+# docker-compose exec db mysql -u administrator -p SupermarketListGeneratorDatabase

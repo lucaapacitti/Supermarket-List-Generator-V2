@@ -10,7 +10,6 @@ public class ListGenerator
     private HashMap<Integer, Product> products;
     private HashMap<String, User> users;
     private HashMap<Integer, List> lists;
-    private HashMap<Integer, Location> locations;
     private HashMap<Integer, PreList> preLists; // Not to be serialised.
 
     public ListGenerator()
@@ -18,7 +17,6 @@ public class ListGenerator
         this.products = new HashMap<>();
         this.users = new HashMap<>();
         this.lists = new HashMap<>();
-        this.locations = new HashMap<>();
         this.preLists = new HashMap<>();
     }
 
@@ -48,15 +46,6 @@ public class ListGenerator
         if (!lists.containsKey(listID))
         {
             throw new RuntimeException("List not found in database.");
-        }
-    }
-
-    public void CheckLocationExists(int locationID)
-    throws RuntimeException
-    {
-        if (!locations.containsKey(locationID))
-        {
-            throw new RuntimeException("Location not found in database.");
         }
     }
 
@@ -304,14 +293,14 @@ public class ListGenerator
         }
     }
 
-    public void CreateProduct(String name, String category, String priceString, Location location)
+    public void CreateProduct(String name, String category, String priceString)
     throws NumberFormatException, IllegalArgumentException
     {
         double price = CheckDoubleType(priceString);
         price = Math.floor(price * 100) / 100.0;
         CheckValidPrice(price);
         int productID = GetAvailableProductID();
-        Product product = new Product(productID, name, category, price, location);
+        Product product = new Product(productID, name, category, price);
         products.put(productID, product);
     }
 
@@ -346,14 +335,6 @@ public class ListGenerator
         CheckValidPrice(price);
         Product product = products.get(productID);
         product.setPrice(price);
-    }
-
-    public void EditProductLocation(int productID, int locationID)
-    {
-        CheckValidLocation(locationID);
-        Location location = locations.get(locationID);
-        Product product = products.get(productID);
-        product.setLocation(location);
     }
 
     public void EditProductInStock(int productID)
@@ -469,32 +450,6 @@ public class ListGenerator
             messages.add("Product " + oldProduct.getName() + " has been replaced with " + replacement.getName() + " in your list " + list.getName() + ".");
             listOwner.setMessages(messages);
         }
-    }
-
-    // Location
-
-    public void CheckValidLocation(int locationID)
-    {
-        boolean found = false;
-        Location location = locations.get(locationID);
-        for (Location locationCheck : locations.values())
-        {
-            if (locationCheck == location)
-            {
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-        {
-            throw new RuntimeException("Location does not exist.");
-        }
-    }
-
-    public String GetLocationName(int locationID)
-    {
-        Location location = locations.get(locationID);
-        return location.getName();
     }
 
     // Lists
@@ -690,7 +645,7 @@ public class ListGenerator
         HashMap<String, Integer> preListCategories = preList.getContents();
         for (String category : preListCategories.keySet())
         {
-            Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
+            Product toAdd = new Product(-1, "Placeholder", "", 999999999.99);
             for (Product product : products.values())
             {
                 if (product.getCategory().equals(category) && product.getPrice() < toAdd.getPrice() && product.getInStock())
@@ -724,7 +679,7 @@ public class ListGenerator
                 }
                 if (productInList != null && quantityInList > 0)
                 {
-                    Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
+                    Product toAdd = new Product(-1, "Placeholder", "", 999999999.99);
                     for (Product product : products.values())
                     {
                         if (product.getID() != productInList.getID() && product.getCategory().equals(category) && product.getPrice() > productInList.getPrice() && product.getInStock())
@@ -765,7 +720,7 @@ public class ListGenerator
                 for (Product productInList : listProducts)
                 {
                     String category = productInList.getCategory();
-                    Product toAdd = new Product(-1, "Placeholder", "", 999999999.99, null);
+                    Product toAdd = new Product(-1, "Placeholder", "", 999999999.99);
                     for (Product product : products.values())
                     {
                         if (product.getID() != productInList.getID() && product.getCategory().equals(category) && product.getPrice() > productInList.getPrice() && product.getInStock())

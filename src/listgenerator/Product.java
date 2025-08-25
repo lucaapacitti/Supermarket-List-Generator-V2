@@ -6,16 +6,14 @@ public class Product
     private String name;
     private String category;
     private double price;
-    private Location location;
     private boolean inStock;
 
-    public Product(int ID, String name, String category, double price, Location location)
+    public Product(int ID, String name, String category, double price)
     {
         this.ID = ID;
         this.name = name;
         this.category = category;
         this.price = price;
-        this.location = location;
         inStock = true;
     }
 
@@ -52,16 +50,6 @@ public class Product
     public void setPrice(double price)
     {
         this.price = price;
-    }
-
-    public Location getLocation()
-    {
-        return location;
-    }
-
-    public void setLocation(Location location)
-    {
-        this.location = location;
     }
 
     public boolean getInStock()
