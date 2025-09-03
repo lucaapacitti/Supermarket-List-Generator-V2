@@ -20,6 +20,28 @@ public class ListGenerator
         this.preLists = new HashMap<>();
     }
 
+    // Getter methods for testing
+
+    public HashMap<Integer, Product> getProducts()
+    {
+        return products;
+    }
+
+    public HashMap<String, User> getUsers()
+    {
+        return users;
+    }
+
+    public HashMap<Integer, List> getLists()
+    {
+        return lists;
+    }
+
+    public HashMap<Integer, PreList> getPreLists()
+    {
+        return preLists;
+    }
+
     // Data structure exception handling
 
     public void CheckProductExists(int productID)
@@ -144,7 +166,7 @@ public class ListGenerator
                 specialPresent = true;
             }
         }
-        if (upperPresent == false || lowerPresent == false || numberPresent == false || specialPresent || false)
+        if (upperPresent == false || lowerPresent == false || numberPresent == false || specialPresent == false)
         {
             throw new RuntimeException("Password must be a combination of lower case, upper case, numeric and special characters.");
         }
@@ -188,7 +210,7 @@ public class ListGenerator
         }
     }
 
-    public void CreateUser(String username, String forename, String surname, String password, String email)
+    public void CreateUser(String forename, String surname, String username, String password, String email)
     {
         CheckLegalUsername(username);
         CheckLegalPassword(password);
