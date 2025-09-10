@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class ListGenerator
 {

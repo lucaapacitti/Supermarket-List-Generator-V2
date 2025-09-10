@@ -26,3 +26,10 @@ public class Test
         }
     }
 }
+
+// To connect as superuser: docker-compose exec db mysql -u root -p           PW: sturdy-space-doodle
+// USE SupermarketListGeneratorDatabase;
+// SHOW TABLES;
+// DESCRIBE table_name;
+// SELECT * FROM table_name;
+// INSERT INTO table_name (column1, column2) VALUES ('value1', 'value2');
