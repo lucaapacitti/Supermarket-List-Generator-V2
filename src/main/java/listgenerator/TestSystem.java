@@ -1,6 +1,7 @@
 package listgenerator;
 
 import java.util.HashMap;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class TestSystem
 {
@@ -210,7 +211,7 @@ public class TestSystem
 
         System.out.println("Attempting to change user password to '" + newlegalPassword + "':");
         test.EditPassword(legalUsername, newlegalPassword);
-        if (users.get(legalUsername).getPassword().equals(newlegalPassword))
+        if (BCrypt.checkpw(newlegalPassword, users.get(legalUsername).getPasswordHash()))
         {
             System.out.println("PASS: Password changed succesfully.");
         }

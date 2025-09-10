@@ -216,7 +216,8 @@ public class ListGenerator
         CheckLegalUsername(username);
         CheckLegalPassword(password);
         CheckValidEmail(email);
-        User newUser = new User(forename, surname, username.toLowerCase(), password, email);
+        String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+        User newUser = new User(forename, surname, username.toLowerCase(), passwordHash, email);
         users.put(username, newUser);
     }
 
@@ -227,7 +228,7 @@ public class ListGenerator
         {
             return false;
         }
-        if (password != user.getPassword())
+        if (!BCrypt.checkpw(password, user.getPasswordHash()))
         {
             return false;
         }
@@ -255,8 +256,9 @@ public class ListGenerator
     public void EditPassword(String username, String password)
     {
         CheckLegalPassword(password);
+        String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
         User user = users.get(username);
-        user.setPassword(password);
+        user.setPasswordHash(passwordHash);
     }
 
     public int[] GetUserLists(String username)

@@ -7,16 +7,16 @@ public class User
     private String forename;
     private String surname;
     private String username;
-    private String password;
+    private String passwordHash;
     private String email;
     private ArrayList<String> messages;
 
-    public User(String forename, String surname, String username, String password, String email)
+    public User(String forename, String surname, String username, String passwordHash, String email)
     {
         this.forename = forename;
         this.surname = surname;
         this.username = username;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.email = email;
         messages = new ArrayList<>();
     }
@@ -46,14 +46,14 @@ public class User
         return username;
     }
 
-    public String getPassword()
+    public String getPasswordHash()
     {
-        return password;
+        return passwordHash;
     }
 
-    public void setPassword(String password)
+    public void setPasswordHash(String passwordHash)
     {
-        this.password = password;
+        this.passwordHash = passwordHash;
     }
 
     public String getEmail()
