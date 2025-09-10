@@ -863,10 +863,19 @@ public class ListGenerator
             listProducts.set(j + 1, productToCompare);
         }
     }
-
-    // Method to sort list by shortest path (Default)
     
     // Method to serialise data structures
-    // Method to deserialise data structures
+    public void SerialiseDataStructures()
+    {
 
+    }
+
+    // Method to deserialise data structures
+    public void DeserialiseDataStructures()
+    {
+        
+    }
+
+    // TO COMPILE ALL: mvn clean compile
+    // TO RUN TEST SYSTEM: mvn exec:java -Dexec.mainClass="listgenerator.TestSystem"
 }
