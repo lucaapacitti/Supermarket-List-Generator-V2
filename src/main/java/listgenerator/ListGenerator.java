@@ -1,6 +1,10 @@
 package listgenerator;
 
 import java.util.HashMap;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
@@ -867,7 +871,46 @@ public class ListGenerator
     // Method to serialise data structures
     public void SerialiseDataStructures()
     {
-
+        String url = "jdbc:mysql://127.0.0.1:3306/SupermarketListGeneratorDatabase";
+        String user = "administrator";
+        String password = "jean-philippe-mateta";
+        try (Connection connection = DriverManager.getConnection(url, user, password))
+        {
+            // Products
+            for (Product product : products.values())
+            {
+                int productID = product.getID();
+                String name = product.getName();
+                String category = product.getCategory();
+                double price = product.getPrice();
+                boolean inStock = product.getInStock();
+                String SQLWrite = "INSERT INTO Products(productID, name, category, price, inStock)" +
+                                  "VALUES (?, ?, ?, ?, ?)" +
+                                  "ON DUPLICATE KEY UPDATE" +
+                                  "name = VALUES(name)," +
+                                  "category = VALUES(category)," +
+                                  "price = VALUES(price)," +
+                                  "inStock = VALUES(inStock),";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(SQLWrite))
+                {
+                    preparedStatement.setInt(1, productID);
+                    preparedStatement.setString(2, name);
+                    preparedStatement.setString(3, category);
+                    preparedStatement.setDouble(4, price);
+                    preparedStatement.setBoolean(5, inStock);
+                    preparedStatement.executeUpdate();
+                }
+            }
+            // Users
+            // Lists
+            // Messages
+            // List Contents
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        
     }
 
     // Method to deserialise data structures
@@ -878,4 +921,17 @@ public class ListGenerator
 
     // TO COMPILE ALL: mvn clean compile
     // TO RUN TEST SYSTEM: mvn exec:java -Dexec.mainClass="listgenerator.TestSystem"
+    // TO OPEN DATABASE: docker-compose exec db mysql -u root -p
+    //                   sturdy-space-doodle
+    //                   USE SupermarketListGeneratorDatabase;
+    //                   SHOW TABLES;
+    //                   DESCRIBE tableName;
+    // Then SQL queries can be written.
+
+    // For table creation:
+    //   CREATE TABLE Users (username VARCHAR(255) PRIMARY KEY, forename VARCHAR(255), surname VARCHAR(255), password CHAR(60), email VARCHAR(255));
+    //   CREATE TABLE Messages (messageID INT PRIMARY KEY, username VARCHAR(255) NOT NULL, contents TEXT, FOREIGN KEY (username) REFERENCES Users(username));
+    //   CREATE TABLE Products (productID INT PRIMARY KEY, name VARCHAR(255) NOT NULL, category VARCHAR(255) NOT NULL, price DOUBLE NOT NULL, inStock BOOLEAN NOT NULL);
+    //   CREATE TABLE Lists (listID INT PRIMARY KEY, name VARCHAR(255) NOT NULL, username VARCHAR(255) NOT NULL, budget DOUBLE NOT NULL, FOREIGN KEY (username) REFERENCES Users(username));
+    //   CREATE TABLE ListContents (instanceID INT PRIMARY KEY, listID INT NOT NULL, productID INT NOT NULL, FOREIGN KEY (listID) REFERENCES Lists(listID), FOREIGN KEY (productID) REFERENCES Products(productID));
 }
