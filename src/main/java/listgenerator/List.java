@@ -39,15 +39,14 @@ public class List
         return user;
     }
 
+    // No setter method for user - no need to transfer a list, once generated, from one user to another.
+
     public double getBudget()
     {
         return budget;
     }
 
-    public void setBudget(int budget)
-    {
-        this.budget = budget;
-    }
+    // No setter method for budget - this cannot be changed once the list has been made.
 
     public ArrayList<Product> getItems()
     {

@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ public class ListGenerator
     private HashMap<String, User> users;
     private HashMap<Integer, List> lists;
     private HashMap<Integer, PreList> preLists; // Not to be serialised.
+    private Queue<SQLStatement> SQLStatements;
 
     public ListGenerator()
     {
@@ -23,6 +25,7 @@ public class ListGenerator
         this.users = new HashMap<>();
         this.lists = new HashMap<>();
         this.preLists = new HashMap<>();
+        this.SQLStatements = new LinkedList<>();
     }
 
     // Getter methods for testing
@@ -45,6 +48,11 @@ public class ListGenerator
     public HashMap<Integer, PreList> getPreLists()
     {
         return preLists;
+    }
+
+    public Queue<SQLStatement> getSQLStatements()
+    {
+        return SQLStatements;
     }
 
     // Data structure exception handling
@@ -223,6 +231,9 @@ public class ListGenerator
         String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
         User newUser = new User(forename, surname, username.toLowerCase(), passwordHash, email);
         users.put(username, newUser);
+        String sql = "INSERT INTO Users(username, forename, surname, passwordHash, email) VALUES(?, ?, ?, ?, ?)";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(username.toLowerCase(), forename, surname, passwordHash, email));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public boolean AttemptLogin(String username, String password)
@@ -243,18 +254,28 @@ public class ListGenerator
     {
         User user = users.get(username);
         user.setForename(forename);
+        String sql = "UPDATE Users SET forename = ? WHERE username = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(forename, username));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void EditSurname(String username, String surname)
     {
         User user = users.get(username);
         user.setSurname(surname);
+        String sql = "UPDATE Users SET surname = ? WHERE username = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(surname, username));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void EditEmail(String username, String email)
     {
+        CheckValidEmail(email);
         User user = users.get(username);
         user.setEmail(email);
+        String sql = "UPDATE Users SET email = ? WHERE username = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(email, username));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void EditPassword(String username, String password)
@@ -263,6 +284,20 @@ public class ListGenerator
         String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
         User user = users.get(username);
         user.setPasswordHash(passwordHash);
+        String sql = "UPDATE Users SET passwordHash = ? WHERE username = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(passwordHash, username));
+        SQLStatements.add(new SQLStatement(sql, parameters));
+    }
+
+    public void CreateMessage(String username, String contents)
+    {
+        User user = users.get(username);
+        ArrayList<String> messages = user.getMessages();
+        messages.add(contents);
+        user.setMessages(messages);
+        String sql = "INSERT INTO Messages(username, contents) VALUES (?, ?)";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(username, contents));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public int[] GetUserLists(String username)
@@ -296,10 +331,13 @@ public class ListGenerator
         {
             if (list.getUser().getUsername() == username)
             {
-                lists.remove(list.getID());
+                DeleteList(list.getID());
             }
         }
         users.remove(username);
+        String sql = "DELETE FROM Users WHERE username = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(username));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     // Products
@@ -331,6 +369,9 @@ public class ListGenerator
         int productID = GetAvailableProductID();
         Product product = new Product(productID, name, category, price);
         products.put(productID, product);
+        String sql = "INSERT INTO Products(productID, name, category, price, inStock) VALUES (?, ?, ?, ?, TRUE)";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(productID, name, category, price));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public String[] GetAllProductCategories()
@@ -356,6 +397,9 @@ public class ListGenerator
     {
         Product product = products.get(productID);
         product.setCategory(category);
+        String sql = "UPDATE Products SET category = ? WHERE productID = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(category, productID));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void EditProductPrice(int productID, String priceString)
@@ -364,6 +408,9 @@ public class ListGenerator
         CheckValidPrice(price);
         Product product = products.get(productID);
         product.setPrice(price);
+        String sql = "UPDATE Products SET price = ? WHERE productID = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(price, productID));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void EditProductInStock(int productID)
@@ -372,6 +419,9 @@ public class ListGenerator
         if (product.getInStock())
         {
             product.setInStock(false);
+            String sql = "UPDATE Products SET inStock = FALSE WHERE productID = ?";
+            ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(productID));
+            SQLStatements.add(new SQLStatement(sql, parameters));
             for (List list : lists.values())
             {
                 ArrayList<Product> contents = list.getItems();
@@ -379,11 +429,9 @@ public class ListGenerator
                 {
                     int quantity = GetProductQuantityInList(productID, list.getID());
                     RemoveProductFromList(productID, list.getID());
-                    User listOwner = list.getUser();
-                    ArrayList<String> messages = listOwner.getMessages();
+                    String listOwnerUsername = list.getUser().getUsername();
                     String message = "The product " + product.getName() + " is out of stock and has been removed from your list.";
-                    messages.add(message);
-                    listOwner.setMessages(messages);
+                    CreateMessage(listOwnerUsername, message);
                     AutoProductReplacement(productID, list.getID(), quantity);
                 }
             }
@@ -391,6 +439,9 @@ public class ListGenerator
         else
         {
             product.setInStock(true);
+            String sql = "UPDATE Products SET inStock = TRUE WHERE productID = ?";
+            ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(productID));
+            SQLStatements.add(new SQLStatement(sql, parameters));
         }
     }
 
@@ -405,15 +456,16 @@ public class ListGenerator
                 int listID = list.getID();
                 int quantity = GetProductQuantityInList(productID, listID);
                 RemoveProductFromList(productID, listID);
-                User listOwner = list.getUser();
-                ArrayList<String> messages = listOwner.getMessages();
+                String listOwnerUsername = list.getUser().getUsername();
                 String message = "The product " + product.getName() + " no longer exists and has been removed from your list " + list.getName() + ".";
-                messages.add(message);
-                listOwner.setMessages(messages);
+                CreateMessage(listOwnerUsername, message);
                 AutoProductReplacement(productID, listID, quantity);
             }
         }
         products.remove(productID);
+        String sql = "DELETE FROM Products WHERE productID = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(productID));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public int GetProductQuantityInList(int productID, int listID)
@@ -439,6 +491,9 @@ public class ListGenerator
             contents.remove(product);
         }
         list.setItems(contents);
+        String sql = "DELETE FROM ListContents WHERE listID = ? AND productID = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(listID, productID));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void AutoProductReplacement(int oldProductID, int listID, int quantity)
@@ -472,12 +527,14 @@ public class ListGenerator
             for (int i = 0; i < quantity; i++)
             {
                 contents.add(replacement);
+                String sql = "INSERT INTO ListContent(listID, productID) VALUES (?, ?)";
+                ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(listID, replacement.getID()));
+                SQLStatements.add(new SQLStatement(sql, parameters));
             }
             list.setItems(contents);
-            User listOwner = list.getUser();
-            ArrayList<String> messages = listOwner.getMessages();
-            messages.add("Product " + oldProduct.getName() + " has been replaced with " + replacement.getName() + " in your list " + list.getName() + ".");
-            listOwner.setMessages(messages);
+            String listOwnerUsername = list.getUser().getUsername();
+            String message = "Product " + oldProduct.getName() + " has been replaced with " + replacement.getName() + " in your list " + list.getName() + ".";
+            CreateMessage(listOwnerUsername, message);
         }
     }
 
@@ -644,6 +701,9 @@ public class ListGenerator
         User user = users.get(username);
         List list = new List(listID, listName, user, budget);
         lists.put(listID, list);
+        String sql = "INSERT INTO Lists(listID, name, username, budget) VALUES (?, ?, ?, ?)";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(listID, listName, username, budget));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
     
     public double GetListCost(int listID)
@@ -773,6 +833,12 @@ public class ListGenerator
                 }
             }
         }
+        for (Product product : listProducts)
+        {
+            String sql = "INSERT INTO ListContents(listID, productID) VALUES(?, ?)";
+            ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(listID, product.getID()));
+            SQLStatements.add(new SQLStatement(sql, parameters));
+        }
     }
 
     public void AddProductToList(int listID, int productID, String quantityString)
@@ -784,6 +850,9 @@ public class ListGenerator
         for (int i = 0; i < quantity; i++)
         {
             listProducts.add(product);
+            String sql = "INSERT INTO ListContents(listID, productID) VALUES(?, ?)";
+            ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(listID, productID));
+            SQLStatements.add(new SQLStatement(sql, parameters));
         }
     }
 
@@ -793,6 +862,9 @@ public class ListGenerator
         ArrayList<Product> listProducts = list.getItems();
         Product product = products.get(productID);
         listProducts.remove(product);
+        String sql = "DELETE FROM ListContents WHERE listID = ? AND productID = ? LIMIT 1";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(listID, productID));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void RemoveAllProductInstancesFromList(int listID, int productID)
@@ -801,17 +873,29 @@ public class ListGenerator
         ArrayList<Product> listProducts = list.getItems();
         Product product = products.get(productID);
         while (listProducts.remove(product)) {};
+        String sql = "DELETE FROM ListContents WHERE listID = ? AND productID = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(listID, productID));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void DeleteList(int listID)
     {
         lists.remove(listID);
+        String sql1 = "DELETE FROM Lists WHERE listID = ?";
+        ArrayList<Object> parameters1 = new ArrayList<>(Arrays.asList(listID));
+        SQLStatements.add(new SQLStatement(sql1, parameters1));
+        String sql2 = "DELETE FROM ListContents WHERE listID = ?";
+        ArrayList<Object> parameters2 = new ArrayList<>(Arrays.asList(listID));
+        SQLStatements.add(new SQLStatement(sql2, parameters2));
     }
 
     public void EditListName(int listID, String name)
     {
         List list = lists.get(listID);
         list.setName(name);
+        String sql = "UPDATE Lists SET name = ? WHERE listID = ?";
+        ArrayList<Object> parameters = new ArrayList<>(Arrays.asList(name, listID));
+        SQLStatements.add(new SQLStatement(sql, parameters));
     }
 
     public void SortProductsByAscPrice(int listID)
@@ -871,46 +955,29 @@ public class ListGenerator
     // Method to serialise data structures
     public void SerialiseDataStructures()
     {
-        String url = "jdbc:mysql://127.0.0.1:3306/SupermarketListGeneratorDatabase";
-        String user = "administrator";
-        String password = "jean-philippe-mateta";
-        try (Connection connection = DriverManager.getConnection(url, user, password))
+        String dbURL = "jdbc:mysql://127.0.0.1:3306/SupermarketListGeneratorDatabase";
+        String dbUser = "administrator";
+        String dbPassword = "jean-philippe-mateta";
+        try (Connection connection = DriverManager.getConnection(dbURL, dbUser, dbPassword))
         {
-            // Products
-            for (Product product : products.values())
+            for (SQLStatement sqlStatement : SQLStatements)
             {
-                int productID = product.getID();
-                String name = product.getName();
-                String category = product.getCategory();
-                double price = product.getPrice();
-                boolean inStock = product.getInStock();
-                String SQLWrite = "INSERT INTO Products(productID, name, category, price, inStock)" +
-                                  "VALUES (?, ?, ?, ?, ?)" +
-                                  "ON DUPLICATE KEY UPDATE" +
-                                  "name = VALUES(name)," +
-                                  "category = VALUES(category)," +
-                                  "price = VALUES(price)," +
-                                  "inStock = VALUES(inStock),";
-                try (PreparedStatement preparedStatement = connection.prepareStatement(SQLWrite))
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement.getSQL()))
                 {
-                    preparedStatement.setInt(1, productID);
-                    preparedStatement.setString(2, name);
-                    preparedStatement.setString(3, category);
-                    preparedStatement.setDouble(4, price);
-                    preparedStatement.setBoolean(5, inStock);
+                    ArrayList<Object> parameters = sqlStatement.getParameters();
+                    for (int i = 0; i < parameters.size(); i++)
+                    {
+                        preparedStatement.setObject(i + 1, parameters.get(i));
+                    }
                     preparedStatement.executeUpdate();
                 }
             }
-            // Users
-            // Lists
-            // Messages
-            // List Contents
+            SQLStatements.clear();
         }
         catch (SQLException e)
         {
             e.printStackTrace();
         }
-        
     }
 
     // Method to deserialise data structures
