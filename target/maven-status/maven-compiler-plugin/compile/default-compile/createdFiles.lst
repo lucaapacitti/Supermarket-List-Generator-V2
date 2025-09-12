@@ -1,8 +1,6 @@
 listgenerator/Product.class
-listgenerator/User.class
 listgenerator/Test.class
 listgenerator/PreList.class
-listgenerator/List.class
 listgenerator/SQLStatement.class
 listgenerator/TestSystem.class
 listgenerator/ListGenerator.class

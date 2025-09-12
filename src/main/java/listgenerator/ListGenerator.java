@@ -997,8 +997,8 @@ public class ListGenerator
 
     // For table creation:
     //   CREATE TABLE Users (username VARCHAR(255) PRIMARY KEY, forename VARCHAR(255), surname VARCHAR(255), password CHAR(60), email VARCHAR(255));
-    //   CREATE TABLE Messages (messageID INT PRIMARY KEY, username VARCHAR(255) NOT NULL, contents TEXT, FOREIGN KEY (username) REFERENCES Users(username));
+    //   CREATE TABLE Messages (messageID INT PRIMARY KEY AUTO_INCREMENT, username VARCHAR(255) NOT NULL, contents TEXT, FOREIGN KEY (username) REFERENCES Users(username));
     //   CREATE TABLE Products (productID INT PRIMARY KEY, name VARCHAR(255) NOT NULL, category VARCHAR(255) NOT NULL, price DOUBLE NOT NULL, inStock BOOLEAN NOT NULL);
     //   CREATE TABLE Lists (listID INT PRIMARY KEY, name VARCHAR(255) NOT NULL, username VARCHAR(255) NOT NULL, budget DOUBLE NOT NULL, FOREIGN KEY (username) REFERENCES Users(username));
-    //   CREATE TABLE ListContents (instanceID INT PRIMARY KEY, listID INT NOT NULL, productID INT NOT NULL, FOREIGN KEY (listID) REFERENCES Lists(listID), FOREIGN KEY (productID) REFERENCES Products(productID));
+    //   CREATE TABLE ListContents (instanceID INT PRIMARY KEY AUTO_INCREMENT, listID INT NOT NULL, productID INT NOT NULL, FOREIGN KEY (listID) REFERENCES Lists(listID), FOREIGN KEY (productID) REFERENCES Products(productID));
 }
